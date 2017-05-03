@@ -19,7 +19,7 @@ var router = function() {
                     //inserting users in mongodb
                 collection.insert(user,
                     function (err, results) {
-                        req.login(results, function () {
+                        req.login(results.ops[0] , function () {
                             res.redirect('/auth/profile');
                         });
                     });
