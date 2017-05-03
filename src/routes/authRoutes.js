@@ -1,12 +1,13 @@
 var express = require('express');
 var authRouter = express.Router();
 var mongodb = require('mongodb').MongoClient;
+var passport = require('passport');
 
 var router = function() {
     authRouter.route('/signUp')
         .post(function(req, res) {
             console.log(req.body);
-            var url = 
+            var url =
                 'mongodb://localhost:27017/booksApp';
             mongodb.connect(url, function(err, db)
             {
@@ -16,7 +17,7 @@ var router = function() {
                     password: req.body.password
                 };
 
-                    //inserting users in mongodb
+                //inserting users in mongodb
                 collection.insert(user,
                     function (err, results) {
                         req.login(results.ops[0] , function () {
@@ -25,7 +26,20 @@ var router = function() {
                     });
             });
         });
+    authRouter.route('/signIn')
+        .post(passport.authenticate('local', {
+            failureRedirect: '/'
+        }), function(req, res) {
+            res.redirect('/auth/profile');
+        }
+        );
     authRouter.route('/profile')
+        .all(function (req, res, next) {
+            if (!req.user) {
+                res.redirect('/');
+            }
+            next();
+        })
         .get(function(req, res) {
             res.json(req.user);
         });
